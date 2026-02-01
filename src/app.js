@@ -23,7 +23,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'https://rbse-elibrary.netlify.app', 'blob:'],
-      frameAncestors: ["'self'", 'https://rbse-elibrary.netlify.app'],
+      'frame-ancestors': ["'self'", 'https://rbse-elibrary.netlify.app'],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'blob:'],
