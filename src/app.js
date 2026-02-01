@@ -22,7 +22,8 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'blob:'],
+      frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'https://rbse-elibrary.netlify.app', 'blob:'],
+      frameAncestors: ["'self'", 'https://rbse-elibrary.netlify.app'],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'blob:'],
