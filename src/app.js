@@ -20,6 +20,7 @@ app.set('trust proxy', 1);
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false,
+  frameguard: false,
   crossOriginResourcePolicy: { policy: 'cross-origin' },
 }));
 
