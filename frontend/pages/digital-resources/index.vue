@@ -96,15 +96,47 @@
             allowfullscreen
           />
 
-          <!-- PDF Preview -->
-          <iframe 
+          <!-- PDF Preview using PDF.js -->
+          <div 
             v-else-if="selectedResource.type === 'pdf' && selectedResource.fileUrl"
-            :src="getFileUrl(selectedResource.fileUrl)"
-            width="100%" 
-            height="100%" 
-            frameborder="0"
-            allow="cross-origin-isolated"
-          />
+            class="w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800"
+          >
+            <div class="flex-1 overflow-auto" ref="pdfContainer">
+              <canvas ref="pdfCanvas" class="mx-auto"></canvas>
+            </div>
+            <div class="bg-gray-200 dark:bg-gray-700 p-4 flex items-center justify-center gap-4">
+              <UButton 
+                icon="i-heroicons-chevron-left" 
+                variant="ghost"
+                @click="previousPdfPage"
+                :disabled="currentPdfPage <= 1"
+              />
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+                {{ currentPdfPage }} / {{ totalPdfPages }}
+              </span>
+              <UButton 
+                icon="i-heroicons-chevron-right" 
+                variant="ghost"
+                @click="nextPdfPage"
+                :disabled="currentPdfPage >= totalPdfPages"
+              />
+              <div class="ml-auto">
+                <a 
+                  :href="getFileUrl(selectedResource.fileUrl)" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="inline-block"
+                >
+                  <UButton 
+                    icon="i-heroicons-arrow-down-tray" 
+                    variant="soft"
+                  >
+                    Download
+                  </UButton>
+                </a>
+              </div>
+            </div>
+          </div>
 
           <!-- Video Preview -->
           <video 
@@ -166,8 +198,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
+import * as pdfjsLib from 'pdfjs-dist'
+
+// Set up PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`
 
 interface Resource {
   _id: string
@@ -185,6 +221,12 @@ interface Resource {
   board?: string
   resourceLanguage?: string
 }
+
+const pdfCanvas = ref<HTMLCanvasElement | null>(null)
+const pdfContainer = ref<HTMLDivElement | null>(null)
+const pdfDoc = ref<any>(null)
+const currentPdfPage = ref(1)
+const totalPdfPages = ref(0)
 
 const { t } = useI18n()
 
@@ -306,6 +348,12 @@ const accessResource = async (resource: Resource) => {
   selectedResource.value = resource
   isViewerOpen.value = true
   
+  // Load PDF if applicable
+  if (resource.type === 'pdf') {
+    await nextTick()
+    await loadPdfFile(resource.fileUrl)
+  }
+  
   // Log access (fire and forget)
   try {
     const config = useRuntimeConfig()
@@ -318,6 +366,52 @@ const accessResource = async (resource: Resource) => {
     })
   } catch (error) {
     console.error('Error logging access:', error)
+  }
+}
+
+const loadPdfFile = async (fileUrl: string) => {
+  try {
+    const fullUrl = getFileUrl(fileUrl)
+    const pdf = await pdfjsLib.getDocument(fullUrl).promise
+    pdfDoc.value = pdf
+    totalPdfPages.value = pdf.numPages
+    currentPdfPage.value = 1
+    await renderPdfPage(1)
+  } catch (error) {
+    console.error('Error loading PDF:', error)
+  }
+}
+
+const renderPdfPage = async (pageNum: number) => {
+  if (!pdfDoc.value || !pdfCanvas.value) return
+  
+  try {
+    const page = await pdfDoc.value.getPage(pageNum)
+    const viewport = page.getViewport({ scale: 2 })
+    
+    pdfCanvas.value.width = viewport.width
+    pdfCanvas.value.height = viewport.height
+    
+    const context = pdfCanvas.value.getContext('2d')
+    if (context) {
+      await page.render({ canvasContext: context, viewport }).promise
+    }
+  } catch (error) {
+    console.error('Error rendering PDF page:', error)
+  }
+}
+
+const previousPdfPage = async () => {
+  if (currentPdfPage.value > 1) {
+    currentPdfPage.value--
+    await renderPdfPage(currentPdfPage.value)
+  }
+}
+
+const nextPdfPage = async () => {
+  if (currentPdfPage.value < totalPdfPages.value) {
+    currentPdfPage.value++
+    await renderPdfPage(currentPdfPage.value)
   }
 }
 
