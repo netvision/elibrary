@@ -1,4 +1,3 @@
-// https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
@@ -11,9 +10,15 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  nitro: {
+    output: {
+      dir: './.output/public'
+    }
+  },
+
   runtimeConfig: {
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:5001/api/v1',
+      apiBase: process.env.VITE_API_BASE || process.env.NUXT_PUBLIC_API_BASE || 'http://localhost:5001/api/v1',
       appName: 'RBSE Digital Library',
       schoolName: process.env.NUXT_PUBLIC_SCHOOL_NAME || 'RBSE Model School'
     }
