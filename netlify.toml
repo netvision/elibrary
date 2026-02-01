@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
-  command = "npm run build && ls -la .output"
-  publish = ".output"
+  command = "npm run build"
+  publish = ".nuxt/dist/client"
 
 [build.environment]
   NODE_VERSION = "20"
