@@ -1,7 +1,7 @@
 [build]
   base = "frontend"
   command = "npm run generate"
-  publish = "dist"
+  publish = ".output/public"
 
 [build.environment]
   NODE_VERSION = "20"
