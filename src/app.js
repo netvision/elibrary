@@ -19,20 +19,8 @@ app.set('trust proxy', 1);
 
 // Security middleware
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'https://rbse-elibrary.netlify.app', 'blob:'],
-      'frame-ancestors': ["'self'", 'https://rbse-elibrary.netlify.app', 'https://*.netlify.app'],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'blob:'],
-      fontSrc: ["'self'"],
-    },
-    reportOnly: false,
-  },
+  contentSecurityPolicy: false,
   crossOriginResourcePolicy: { policy: 'cross-origin' },
-  skip: (req) => req.path.startsWith('/uploads')
 }));
 
 // CORS configuration
