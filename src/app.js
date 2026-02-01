@@ -61,6 +61,9 @@ const staticCors = (req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   res.header('Access-Control-Allow-Credentials', 'true');
   
+  // Remove CSP for static files to allow iframe embedding
+  res.removeHeader('Content-Security-Policy');
+  
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
   }
