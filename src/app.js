@@ -17,22 +17,27 @@ const app = express();
 // Trust proxy (nginx/reverse proxy)
 app.set('trust proxy', 1);
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'https://rbse-elibrary.netlify.app', 'blob:'],
-      'frame-ancestors': ["'self'", 'https://rbse-elibrary.netlify.app'],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", 'data:', 'blob:'],
-      fontSrc: ["'self'"],
+// Security middleware - skip CSP for static file uploads
+app.use((req, res, next) => {
+  if (req.path.startsWith('/uploads')) {
+    return next();
+  }
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'https://rbse-elibrary.netlify.app', 'blob:'],
+        'frame-ancestors': ["'self'", 'https://rbse-elibrary.netlify.app'],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        fontSrc: ["'self'"],
+      },
+      reportOnly: false,
     },
-    reportOnly: false,
-  },
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-}));
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })(req, res, next);
+});
 
 // CORS configuration
 const allowedOrigins = [
