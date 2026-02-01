@@ -91,7 +91,8 @@ export const useAuthStore = defineStore('auth', {
           
           // Verify token is still valid by calling /auth/me
           try {
-            const apiBase = 'http://localhost:5001/api/v1' // fallback since useRuntimeConfig may not be available
+            const config = useRuntimeConfig()
+            const apiBase = config.public.apiBase || 'http://localhost:5001/api/v1'
             const response = await fetch(`${apiBase}/auth/me`, {
               headers: {
                 'Authorization': `Bearer ${token}`,
