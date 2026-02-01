@@ -102,7 +102,7 @@
             class="w-full h-full flex flex-col bg-gray-100 dark:bg-gray-800"
           >
             <embed 
-              :src="getFileUrl(selectedResource.fileUrl)" 
+              :src="getFileUrl(selectedResource.fileUrl, true)" 
               type="application/pdf"
               class="flex-1 w-full"
             />
@@ -289,16 +289,17 @@ const getEmbedUrl = (url: string): string => {
   return `${baseUrl}${url}`
 }
 
-const getFileUrl = (url: string): string => {
+const getFileUrl = (url: string, bustCache = false): string => {
   // If URL is already absolute, use it as-is
   if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url
+    return bustCache ? `${url}${url.includes('?') ? '&' : '?'}cb=${Date.now()}` : url
   }
   
   // For relative paths, prepend the API base URL
   const config = useRuntimeConfig()
   const baseUrl = config.public.apiBase.replace('/api/v1', '')
-  return `${baseUrl}${url}`
+  const fullUrl = `${baseUrl}${url}`
+  return bustCache ? `${fullUrl}${fullUrl.includes('?') ? '&' : '?'}cb=${Date.now()}` : fullUrl
 }
 
 const fetchResources = async () => {

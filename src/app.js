@@ -68,8 +68,15 @@ app.use('/uploads', staticCors);
 
 // Serve static files from uploads directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads'), {
-  maxAge: '24h',
-  etag: false
+  maxAge: 0,
+  etag: false,
+  setHeaders: (res) => {
+    res.removeHeader('Content-Security-Policy');
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
 }));
 
 // Apply rate limiting to all routes
