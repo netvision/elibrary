@@ -372,7 +372,13 @@ const accessResource = async (resource: Resource) => {
 const loadPdfFile = async (fileUrl: string) => {
   try {
     const fullUrl = getFileUrl(fileUrl)
-    const pdf = await pdfjsLib.getDocument(fullUrl).promise
+    // Fetch PDF as blob
+    const response = await fetch(fullUrl)
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const arrayBuffer = await response.arrayBuffer()
+    
+    // Load PDF from blob
+    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise
     pdfDoc.value = pdf
     totalPdfPages.value = pdf.numPages
     currentPdfPage.value = 1
