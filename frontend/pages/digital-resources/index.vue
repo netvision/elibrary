@@ -202,11 +202,8 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import * as pdfjsLib from 'pdfjs-dist'
 
-// Set up PDF.js worker from node_modules
-pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-  'pdfjs-dist/build/pdf.worker.min.js',
-  import.meta.url
-).href
+// Set up PDF.js worker from public directory
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf/pdf.worker.min.mjs'
 
 interface Resource {
   _id: string
