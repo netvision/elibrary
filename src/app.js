@@ -23,7 +23,7 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       frameSrc: ["'self'", 'http://localhost:3000', 'http://localhost:5001', 'https://rbse-elibrary.netlify.app', 'blob:'],
-      'frame-ancestors': ["'self'", 'https://rbse-elibrary.netlify.app'],
+      'frame-ancestors': ["'self'", 'https://rbse-elibrary.netlify.app', 'https://*.netlify.app'],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", 'data:', 'blob:'],
@@ -64,6 +64,9 @@ const staticCors = (req, res, next) => {
   
   // Remove CSP for static files to allow iframe embedding
   res.removeHeader('Content-Security-Policy');
+  res.removeHeader('X-Content-Type-Options');
+  // Explicitly allow framing from Netlify
+  res.setHeader('X-Frame-Options', 'ALLOWALL');
   
   if (req.method === 'OPTIONS') {
     return res.sendStatus(200);
