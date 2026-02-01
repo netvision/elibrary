@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
       required: [true, 'Admission number is required'],
       unique: true,
       trim: true,
+      index: true,
     },
     name: {
       type: String,
@@ -23,6 +24,7 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
       match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+      index: true,
     },
     password: {
       type: String,
@@ -137,9 +139,7 @@ userSchema.methods.generateResetPasswordToken = function () {
   return resetToken;
 };
 
-// Indexes for better query performance
-userSchema.index({ email: 1 });
-userSchema.index({ admissionNumber: 1 });
+// Compound index for role and class queries
 userSchema.index({ role: 1, class: 1 });
 
 const User = mongoose.model('User', userSchema);
